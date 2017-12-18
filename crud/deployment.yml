@@ -1,28 +1,28 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: crud-deployment
+  name: $service-deployment
   labels:
-    app: crud
+    app: $service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: crud
+      app: $service
   template:
     metadata:
       labels:
-        app: crud
+        app: $service
     spec:
       containers:
-      - name: crud
-        image: 'gcr.io/arched-shuttle-189207/github-microservices-iosr-2017-miosr-crud:stage-0.2.7'
+      - name: $service
+        image: 'gcr.io/arched-shuttle-189207/github-microservices-iosr-2017-miosr-$service:$version'
         ports:
-        - containerPort: 9001
+        - containerPort: $port
         volumeMounts:
         - name: config-volume
           mountPath: /etc/appconfig/
       volumes:
       - name: config-volume
         configMap:
-          name: crud-config
+          name: $service-config
