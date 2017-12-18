@@ -37,3 +37,26 @@ Versioning convention:
 * production release: X.X.0
 * staging releases: X.X.Y - X.X is production release on which it's based, Y is
 incremented every time new staging release is made
+
+### Creating cluster
+
+Install preqreuisties:
+* gcloud
+* run `gcloud init`, set default project id and zone (currently _europe-west3-a_)
+* kubectl \
+`gcloud components install kubectl`
+
+Then use the following command to create cluster:
+```
+gcloud container clusters create miosr --num-nodes=3
+```
+
+### Deplying services
+
+```
+python deploy.py crud|users|frontend
+```
+
+_Warning_
+Script doesn't restart deployment when configuration changes - you have to
+do it manually.

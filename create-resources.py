@@ -51,14 +51,30 @@ def get_dict_to_substituted_files(original_config_dir, out_dir):
     return dict(substituted_pairs)
 
 
+def apply_conf(service_name, filename):
+    print("Applying config from file: " + filename)
+    os.system("kubectl create configmap --dry-run -o yaml {}-config --from-file={} | kubectl replace -f -"
+              .format(service_name, filename))
+
+def apply_res(filename):
+    print("Applying resource from file: " + filename)
+    os.system("kubectl apply -f {}".format(filename))
+
+
 if __name__ == "__main__":
     service_name = sys.argv[1]
-    cleanup_temp = not bool(sys.argv[2])
+    cleanup_temp = len(sys.argv) < 2
 
     config_dir = os.path.join(get_script_dir(), service_name)
     out_dir = tempfile.mkdtemp(prefix="{}-".format(service_name))
 
     substitued = get_dict_to_substituted_files(config_dir, out_dir)
+
+    # create config
+    apply_conf(service_name, substitued["config"])
+    # deployment and service
+    for fpath in [substitued["dep"], substitued["svc"]]:
+        apply_res(fpath)
 
     if cleanup_temp:
         shutil.rmtree(out_dir)
