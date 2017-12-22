@@ -1,5 +1,5 @@
 {
   "service": "crud",
   "port": 9001,
-  "version": "stage-0.2.7"
+  "version": "stage-0.3.1"
 }
