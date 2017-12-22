@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: $service
-        image: 'gcr.io/arched-shuttle-189207/github-microservices-iosr-2017-miosr-$service:$version'
+        image: 'kroczi/miosr-$service:$version'
         ports:
         - containerPort: $port
         volumeMounts:

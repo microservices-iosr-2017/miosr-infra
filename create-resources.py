@@ -53,7 +53,7 @@ def get_dict_to_substituted_files(original_config_dir, out_dir):
 
 def apply_conf(service_name, filename):
     print("Applying config from file: " + filename)
-    os.system("kubectl create configmap --dry-run -o yaml {}-config --from-file={} | kubectl replace -f -"
+    os.system("kubectl create configmap --dry-run -o yaml {}-config --from-file={} | kubectl apply -f -"
               .format(service_name, filename))
 
 def apply_res(filename):
