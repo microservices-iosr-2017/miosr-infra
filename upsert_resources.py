@@ -52,7 +52,7 @@ def get_dict_to_substituted_files(original_config_dir, out_dir):
     return dict(substituted_pairs)
 
 def get_config_suffix(base_name):
-    current_cm_names = os.popen("kubectl get cm | tail -n+2 | cut -d" " -f 1").read().split("\n")
+    current_cm_names = os.popen("kubectl get cm | tail -n+2 | cut -d' ' -f 1").read().split("\n")
     names_matching_base = filter(lambda x: x.startswith(base_name), current_cm_names)
 
     if not names_matching_base:
