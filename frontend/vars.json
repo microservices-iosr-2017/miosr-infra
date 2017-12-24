@@ -1,0 +1,5 @@
+{
+  "service": "frontend",
+  "port": 80,
+  "version": "stage-0.0.1"
+}
