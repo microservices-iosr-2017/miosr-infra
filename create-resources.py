@@ -51,6 +51,24 @@ def get_dict_to_substituted_files(original_config_dir, out_dir):
 
     return dict(substituted_pairs)
 
+def get_config_suffix(base_name):
+    current_cm_names = os.popen("kubectl get cm | tail -n+2 | cut -d" " -f 1").read().split("\n")
+    names_matching_base = filter(lambda x: x.startswith(base_name), current_cm_names)
+
+    if not names_matching_base:
+        v = 0
+    else:
+        def name_to_suffix(x):
+            v_suffix = x.replace(base_name, "")
+            if not v_suffix:
+                return 0
+            else:
+                return int(v_suffix.replace("-v", ""))
+
+        version_suffixes = map(name_to_suffix, names_matching_base)
+        v = max(version_suffixes) + 1
+
+    return "-v{}".format(v)
 
 def apply_conf(service_name, filename):
     print("Applying config from file: " + filename)
