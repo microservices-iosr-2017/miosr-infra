@@ -42,8 +42,9 @@ def substitute(mapping, in_dir, filename, out_dir):
     return out_path
 
 
-def get_dict_to_substituted_files(original_config_dir, out_dir):
+def get_dict_to_substituted_files(original_config_dir, out_dir, overrides):
     vars_dict = get_vars_dict(original_config_dir)
+    vars_dict.update(overrides)
 
     filename_pairs = [("config", "config.properties"), ("dep", "deployment.yml"), ("svc", "service.yml")]
     substituted_pairs = map(lambda (k, fname): (k, substitute(vars_dict, original_config_dir, fname, out_dir)),
@@ -73,10 +74,10 @@ def get_current_config_version(base_name):
 
     return v
 
-def apply_conf(service_name, filename):
+def apply_conf(config_name, filename):
     print("Applying config from file: " + filename)
-    os.system("kubectl create configmap --dry-run -o yaml {}-config --from-file={} | kubectl apply -f -"
-              .format(service_name, filename))
+    os.system("kubectl create configmap --dry-run -o yaml {} --from-file={} | kubectl apply -f -"
+              .format(config_name, filename))
 
 def apply_res(filename):
     print("Applying resource from file: " + filename)
@@ -85,21 +86,28 @@ def apply_res(filename):
 def process_args():
     parser = argparse.ArgumentParser(description='Manage MIOSR resources')
     parser.add_argument('-s', '--service', dest="service_name", help='name of service to modify', required=True)
-    parser.add_argument('-c', '--cleanup', dest="cleanup_temp", action='store_true',
+    parser.add_argument('-t', '--cleanup-temp', dest="cleanup_temp", action='store_true',
                         help='should perform temp directory cleanup')
+    parser.add_argument('-c', '--replace-config', dest="replace_config", action='store_true',
+                        help='replace configuration with new version (and restart cluster)')
     args = parser.parse_args()
     return args
 
 if __name__ == "__main__":
     args = process_args()
 
+    conf_base_name = "{}-service".format(args.service_name)
+    conf_v = get_current_config_version(conf_base_name)
+    new_conf_v = max([conf_v+1 if args.replace_config else conf_v, 0])
+    config_name = "{}-v{}".format(conf_base_name, new_conf_v)
+
     config_dir = os.path.join(get_script_dir(), args.service_name)
     out_dir = tempfile.mkdtemp(prefix="{}-".format(args.service_name))
 
-    substitued = get_dict_to_substituted_files(config_dir, out_dir)
+    substitued = get_dict_to_substituted_files(config_dir, out_dir, {"configname": config_name})
 
     # create config
-    apply_conf(args.service_name, substitued["config"])
+    apply_conf(config_name, substitued["config"])
     # deployment and service
     for fpath in [substitued["dep"], substitued["svc"]]:
         apply_res(fpath)
