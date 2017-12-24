@@ -6,6 +6,7 @@ import string
 import tempfile
 import json
 import shutil
+import argparse
 
 def get_script_dir():
     return os.path.dirname(os.path.realpath(__file__))
@@ -60,23 +61,29 @@ def apply_res(filename):
     print("Applying resource from file: " + filename)
     os.system("kubectl apply -f {}".format(filename))
 
+def process_args():
+    parser = argparse.ArgumentParser(description='Manage MIOSR resources')
+    parser.add_argument('-s', '--service', dest="service_name", help='name of service to modify', required=True)
+    parser.add_argument('-c', '--cleanup', dest="cleanup_temp", action='store_true',
+                        help='should perform temp directory cleanup')
+    args = parser.parse_args()
+    return args
 
 if __name__ == "__main__":
-    service_name = sys.argv[1]
-    cleanup_temp = len(sys.argv) < 2
+    args = process_args()
 
-    config_dir = os.path.join(get_script_dir(), service_name)
-    out_dir = tempfile.mkdtemp(prefix="{}-".format(service_name))
+    config_dir = os.path.join(get_script_dir(), args.service_name)
+    out_dir = tempfile.mkdtemp(prefix="{}-".format(args.service_name))
 
     substitued = get_dict_to_substituted_files(config_dir, out_dir)
 
     # create config
-    apply_conf(service_name, substitued["config"])
+    apply_conf(args.service_name, substitued["config"])
     # deployment and service
     for fpath in [substitued["dep"], substitued["svc"]]:
         apply_res(fpath)
 
-    if cleanup_temp:
+    if args.cleanup_temp:
         shutil.rmtree(out_dir)
     else:
         print substitued
