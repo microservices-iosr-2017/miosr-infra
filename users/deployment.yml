@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: $service-deployment
+  labels:
+    app: $service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: $service
+  template:
+    metadata:
+      labels:
+        app: $service
+    spec:
+      containers:
+      - name: $service
+        image: 'wzagrajcz/miosr-$service'
+        ports:
+        - containerPort: $port
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/appconfig/
+      volumes:
+      - name: config-volume
+        configMap:
+          name: $configname

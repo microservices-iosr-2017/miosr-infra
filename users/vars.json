@@ -1,0 +1,5 @@
+{
+  "service": "users",
+  "port": 9002,
+  "version": "stage-0.3.1"
+}
