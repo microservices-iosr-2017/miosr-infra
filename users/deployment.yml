@@ -26,8 +26,8 @@ spec:
         name: mongo
         ports:
         - name: mongo
-          containerPort: 27017
-          hostPort: 27017
+          containerPort: $mongo_port
+          hostPort: $mongo_port
       volumes:
       - name: config-volume
         configMap:

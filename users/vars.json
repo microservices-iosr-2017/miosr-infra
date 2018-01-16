@@ -1,5 +1,6 @@
 {
   "service": "users",
   "port": 9002,
-  "version": "stage-0.3.1"
+  "mongo_port": 27017,
+  "mongo_host": "localhost"
 }
