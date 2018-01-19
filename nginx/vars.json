@@ -9,5 +9,5 @@
   "users_port": 9002,
 
   "endpoint_name": "notes-manager.endpoints.arched-shuttle-189207.cloud.goog",
-  "endpoint_version": "2018-01-16r0"
+  "endpoint_version": "2018-01-19r1"
 }
