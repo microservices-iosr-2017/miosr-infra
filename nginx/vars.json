@@ -1,0 +1,13 @@
+{
+  "service": "nginx",
+  "port": 9692,
+  "dns": "10.3.240.10",
+
+  "esp_port": 9691,
+  "nginx_port": 9690,
+  "crud_port": 9001,
+  "users_port": 9002,
+
+  "endpoint_name": "notes-manager.endpoints.arched-shuttle-189207.cloud.goog",
+  "endpoint_version": "2018-01-16r0"
+}

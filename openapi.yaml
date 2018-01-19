@@ -1,0 +1,174 @@
+swagger: "2.0"
+info:
+  description: "Endpoints for CRUD."
+  title: "Endpoints for CRUD"
+  version: "0.0.1"
+host: "notes-manager.endpoints.arched-shuttle-189207.cloud.goog"
+
+x-google-endpoints:
+  - name: "notes-manager.endpoints.arched-shuttle-189207.cloud.goog"
+    target: "35.198.185.199"
+
+basePath: "/"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+schemes:
+  - "https"
+
+paths:
+  "/notes":
+    get:
+      description: "Get list of all notes."
+      operationId: "get_all_notes"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "List of notes."
+          schema:
+            $ref: "#/definitions/notesList"
+      security:
+        - api_key: []
+
+    post:
+      description: "Add a note."
+      operationId: "add_note"
+      produces:
+        - "application/json"
+      responses:
+        201:
+          description: "Note successfully created."
+      parameters:
+        - name: note
+          in: body
+          description: "Note to be inserted."
+          required: true
+          schema:
+            $ref: "#/definitions/note"
+        - name: username
+          in: header
+          type: string
+          description: "Username of the requester."
+          required: true
+        - name: token
+          in: header
+          type: string
+          description: "Valid token acquired from the authentication service."
+          required: true
+      security:
+        - api_key: []
+
+  "/notes/{id}":
+    get:
+      description: "Get note with specified id."
+      operationId: "get_note"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "Queried note."
+          schema:
+            $ref: "#/definitions/note"
+      parameters:
+        - name: id
+          in: path
+          description: "Id of the note."
+          required: true
+          type: integer
+          format: int64
+          minimum: 0
+      security:
+        - api_key: []
+
+    delete:
+      description: "Remove note with specified id."
+      operationId: "remove_note"
+      responses:
+        204:
+          description: "Note deleted."
+      parameters:
+        - name: id
+          in: path
+          description: "Id of the note."
+          required: true
+          type: integer
+          format: int64
+      security:
+        - api_key: []
+
+  "/auth/register":
+    post:
+      description: "Register a user."
+      operationId: "register_user"
+      produces:
+        - "application/json"
+      responses:
+        200:
+          description: "User successfully registered."
+      parameters:
+        - name: credentials
+          in: body
+          description: "Username and password."
+          required: true
+          schema:
+            $ref: "#/definitions/credentials"
+      security:
+        - api_key: []
+
+  "/auth/login":
+    post:
+      description: "User login."
+      operationId: "user_login"
+      produces:
+        - "application/json"
+      responses:
+        202:
+          description: "User successfully logged in."
+          headers:
+            token:
+              description: "User token."
+              type: string
+        403:
+          description: "Incorrect user credentials."
+      parameters:
+        - name: credentials
+          in: body
+          description: "Username and password."
+          required: true
+          schema:
+            $ref: "#/definitions/credentials"
+      security:
+        - api_key: []
+
+definitions:
+  notesList:
+    type: array
+    description: "List of notes."
+    items:
+      $ref: "#/definitions/note"
+  note:
+    properties:
+      index:
+        type: integer
+        format: int64
+      author:
+        type: string
+      title:
+        type: string
+      text:
+        type: string
+  credentials:
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+        format: password
+
+securityDefinitions:
+  api_key:
+    type: "apiKey"
+    name: "key"
+    in: "query"

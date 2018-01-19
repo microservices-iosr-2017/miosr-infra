@@ -42,11 +42,11 @@ def substitute(mapping, in_dir, filename, out_dir):
     return out_path
 
 
-def get_dict_to_substituted_files(original_config_dir, out_dir, overrides):
+def get_dict_to_substituted_files(original_config_dir, out_dir, overrides, injected_file):
     vars_dict = get_vars_dict(original_config_dir)
     vars_dict.update(overrides)
 
-    filename_pairs = [("config", "config.properties"), ("dep", "deployment.yml"), ("svc", "service.yml")]
+    filename_pairs = [("config", injected_file), ("dep", "deployment.yml"), ("svc", "service.yml")]
     substituted_pairs = map(lambda (k, fname): (k, substitute(vars_dict, original_config_dir, fname, out_dir)),
                             filename_pairs)
 
@@ -90,6 +90,7 @@ def process_args():
                         help='should perform temp directory cleanup')
     parser.add_argument('-c', '--replace-config', dest="replace_config", action='store_true',
                         help='replace configuration with new version (and restart cluster)')
+    parser.add_argument('-i', '--injected-configuration-file', dest="injected_config", help='name of configuration file to be injected to container', required=False, default='config.properties')
     args = parser.parse_args()
     return args
 
@@ -104,7 +105,7 @@ if __name__ == "__main__":
     config_dir = os.path.join(get_script_dir(), args.service_name)
     out_dir = tempfile.mkdtemp(prefix="{}-".format(args.service_name))
 
-    substitued = get_dict_to_substituted_files(config_dir, out_dir, {"configname": config_name})
+    substitued = get_dict_to_substituted_files(config_dir, out_dir, {"configname": config_name}, args.injected_config)
 
     # create config
     apply_conf(config_name, substitued["config"])

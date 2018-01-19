@@ -15,13 +15,26 @@ spec:
         app: $service
     spec:
       containers:
-      - name: $service
-        image: 'kroczi/miosr-$service:$version'
+      # [START esp]
+      - name: esp
+        image: gcr.io/endpoints-release/endpoints-runtime:1
+        args: [
+          "--http_port=$esp_port",
+          "--backend=127.0.0.1:$nginx_port",
+          "--service=$endpoint_name",
+          "--version=$endpoint_version",
+        ]
         ports:
-        - containerPort: $port
+        - containerPort: $esp_port
+      # [END esp]
+
+      - name: $service
+        image: 'nginx'
+        ports:
+        - containerPort: $nginx_port
         volumeMounts:
         - name: config-volume
-          mountPath: /etc/appconfig/
+          mountPath: /etc/nginx/
       volumes:
       - name: config-volume
         configMap:

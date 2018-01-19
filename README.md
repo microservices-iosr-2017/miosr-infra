@@ -40,23 +40,65 @@ incremented every time new staging release is made
 
 ### Creating cluster
 
-Install preqreuisties:
-* gcloud
+Preqreuisties:
+* install gcloud
 * run `gcloud init`, set default project id and zone (currently _europe-west3-a_)
-* kubectl \
+* install kubectl \
 `gcloud components install kubectl`
 
 Then use the following command to create cluster:
 ```
 gcloud container clusters create miosr --num-nodes=3
 ```
+And get cluster credentials for `kubectl`:
+```
+gcloud container clusters get-credentials miosr --zone europe-west3-a
+```
 
 ### Deplying services
 
 ```
-python deploy.py crud|users|frontend
+python upsert_resources.py -s crud|users|frontend
 ```
 
 _Warning_
 Script doesn't restart deployment when configuration changes - you have to
 do it manually.
+
+### Setting up API gateway
+
+After creating cluster and delpying `crud` and `users` services:
+1. Open `openapi.yaml` file and configure domain name for the service.
+Both `host` and `x-google-endpoints/name` parameters should be set to:
+`"[API_NAME].endpoints.[PROJECT_ID].cloud.goog"`, where
+    * `[PROJECT_ID]` should be substituted with the current project id,
+    * `[API_NAME]` is free to choose.
+2. Set up the API endpoint:
+    ```
+    gcloud endpoints services deploy openapi.yaml
+    ```
+3. Inside `nginx/vars.json` file set the `endpoint_name` and `endpoint_version` according to the output of the command:
+    ```
+    gcloud endpoints configs list --service=[API_NAME].endpoints.[PROJECT_ID].cloud.goog
+    ```
+4. Deploy the `nginx` service:
+    ```
+    python upsert_resources.py -s nginx -i nginx.conf
+    ```
+5. Once again open the `openapi.yaml` file and set the `x-google-endpoints/target` parameter to the `EXTERNAL-IP` of the `nginx` service, which can be obtained from:
+    ```
+    kubectl get service nginx-service
+    ```
+6. Update the API endpoint:
+    ```
+    gcloud endpoints services deploy openapi.yaml
+    ```
+7. In the [console](https://console.cloud.google.com/apis/credentials?_ga=2.45599268.1624186116.1516013623-288541820.1516012998) generate API key:
+    * Click Create credentials, then select API key.
+
+8. Now the API is ready to use. Try to register in the system:
+    ```
+    curl -i -X POST -H "Content-Type:application/json" \
+         -d '{"username":"my-name","password":"my-pass"}' \
+         http://[API_NAME].endpoints.[PROJECT_ID].cloud.goog:9692/auth/register?key=[API_KEY]
+    ```

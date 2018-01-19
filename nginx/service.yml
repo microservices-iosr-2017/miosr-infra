@@ -5,9 +5,11 @@ metadata:
   labels:
     app: $service
 spec:
-  type: ClusterIP
+  type: LoadBalancer
   ports:
   - port: $port
-    targetPort: $port
+    targetPort: $esp_port
+    protocol: TCP
+    name: http
   selector:
     app: $service
