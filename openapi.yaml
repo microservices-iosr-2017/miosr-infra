@@ -1,3 +1,4 @@
+
 swagger: "2.0"
 info:
   description: "Endpoints for CRUD."
@@ -7,7 +8,8 @@ host: "notes-manager.endpoints.arched-shuttle-189207.cloud.goog"
 
 x-google-endpoints:
   - name: "notes-manager.endpoints.arched-shuttle-189207.cloud.goog"
-    target: "35.198.185.199"
+    target: "35.198.115.108"
+    allowCors: true
 
 basePath: "/"
 consumes:
